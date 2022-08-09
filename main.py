@@ -15,9 +15,9 @@ def run_killer(time, password, platform):
     platform = platform.get()
     # print(seckill_time, password)
     if platform == "京东":
-        JDong(seckill_time_str=seckill_time, password=password).sec_kill(login_time_out=20)
+        JDong(seckill_time_str=seckill_time, password=password).sec_kill(login_time_out=10)
     elif platform == "淘宝":
-        TaoBao(seckill_time_str=seckill_time, password=password).sec_kill(login_time_out=20)
+        TaoBao(seckill_time_str=seckill_time, password=password).sec_kill(login_time_out=15)
     else:
         raise Exception("未知平台类型")
 
@@ -47,7 +47,7 @@ def main():
     password.grid(column=1, row=1)
 
     # 选择平台
-    label3 = Label(win, text="抢购平台:", width=12, height=3, font=("Lucida Grande", 13))
+    label3 = Label(win, text="抢购平台:", width=12, height=3, font=("Lucida Grande", 12))
     label3.grid(column=0, row=2)
     platform_value = StringVar()
     platform = Combobox(win, textvariable=platform_value, width=18, font=("Lucida Grande", 13))
