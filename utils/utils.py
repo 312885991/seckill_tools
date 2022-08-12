@@ -41,7 +41,7 @@ def notify_user(uuid="5d4bc588e000bfc",
         html=html,
         emails=emails
     )).json()
-    print("消息推送成功！" if res['errno' == 0] else "消息推送失败！")
+    print("消息推送结果：{}".format(res))
 
 
 if __name__ == '__main__':
