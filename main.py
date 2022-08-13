@@ -15,7 +15,7 @@ def run_killer(time, password, platform):
     platform = platform.get()
     # print(seckill_time, password)
     if platform == "京东":
-        JDong(seckill_time_str=seckill_time, password=password).sec_kill(login_time_out=10)
+        JDong(seckill_time_str=seckill_time, password=password).sec_kill(login_time_out=15)
     elif platform == "淘宝":
         TaoBao(seckill_time_str=seckill_time, password=password).sec_kill(login_time_out=15)
     else:
@@ -25,6 +25,7 @@ def run_killer(time, password, platform):
 def main():
     win = Tk()
     win.title('电商秒杀助手')
+    win.iconbitmap("img/icon.ico")
     width = 540
     height = 350
     screenwidth = win.winfo_screenwidth()

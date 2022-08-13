@@ -1,5 +1,8 @@
 import os
+from random import choice
+
 import requests
+from selenium import webdriver
 
 
 # 获取useragent信息
@@ -13,6 +16,25 @@ def get_useragent_data(filename: str = "./useragents.txt") -> list:
         print(e)
         data = ["Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)"]
     return data
+
+
+# 配置chrome启动项
+def build_chrome_options():
+    """配置启动项"""
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.accept_untrusted_certs = True
+    chrome_options.assume_untrusted_cert_issuer = True
+    arguments = ['--no-sandbox', '--disable-impl-side-painting', '--disable-setuid-sandbox',
+                 '--disable-seccomp-filter-sandbox',
+                 '--disable-breakpad', '--disable-client-side-phishing-detection', '--disable-cast',
+                 '--disable-cast-streaming-hw-encoding', '--disable-cloud-import', '--disable-popup-blocking',
+                 '--ignore-certificate-errors', '--disable-session-crashed-bubble', '--disable-ipv6',
+                 '--allow-http-screen-capture', '--start-maximized', '--ignore-ssl-errors']
+    for arg in arguments:
+        chrome_options.add_argument(arg)
+    chrome_options.add_experimental_option("excludeSwitches", ['enable-automation', 'enable-logging'])
+    chrome_options.add_argument(f'--user-agent={choice(get_useragent_data())}')
+    return chrome_options
 
 
 # 消息推送

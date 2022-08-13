@@ -1,6 +1,5 @@
 import json
 from time import sleep
-from random import choice
 from datetime import datetime
 
 from selenium import webdriver
@@ -9,27 +8,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from utils.utils import get_useragent_data
 from utils.utils import notify_user
-
-
-# 配置chrome启动项
-def build_chrome_options():
-    """配置启动项"""
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.accept_untrusted_certs = True
-    chrome_options.assume_untrusted_cert_issuer = True
-    arguments = ['--no-sandbox', '--disable-impl-side-painting', '--disable-setuid-sandbox',
-                 '--disable-seccomp-filter-sandbox',
-                 '--disable-breakpad', '--disable-client-side-phishing-detection', '--disable-cast',
-                 '--disable-cast-streaming-hw-encoding', '--disable-cloud-import', '--disable-popup-blocking',
-                 '--ignore-certificate-errors', '--disable-session-crashed-bubble', '--disable-ipv6',
-                 '--allow-http-screen-capture', '--start-maximized']
-    for arg in arguments:
-        chrome_options.add_argument(arg)
-    chrome_options.add_argument(f'--user-agent={choice(get_useragent_data())}')
-    return chrome_options
-
+from utils.utils import build_chrome_options
 
 # 抢购失败最大次数
 max_retry_count = 30
@@ -38,7 +18,7 @@ max_retry_count = 30
 # 自动抢票类（淘宝）
 class TaoBao:
 
-    def __init__(self, chrome_path=None, seckill_time_str=None, password=None):
+    def __init__(self, chrome_path="./chromedriver.exe", seckill_time_str=None, password=None):
         # 驱动路径
         self.chrome_path = chrome_path
         # 抢购时间
@@ -133,6 +113,7 @@ class TaoBao:
         # 获取全选框
         select_all = self.driver.find_element(By.ID, "J_SelectAll1")
         if select_all:
+            print("当前未选状态，自动选择全部商品")
             # 点击全选
             select_all.click()
         print("已经选中全部商品！！！")
@@ -196,7 +177,8 @@ class TaoBao:
             print(e)
             notify_user(text="商品抢购失败")
         finally:
-            sleep(30)
+            print("20s后关闭浏览器...")
+            sleep(20)
             self.driver.quit()
 
     def get_cookie(self):
