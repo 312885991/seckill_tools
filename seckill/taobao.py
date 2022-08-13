@@ -47,8 +47,6 @@ class TaoBao:
         self.password = password
         # chrome驱动
         self.driver = None
-        # 订单详情
-        self.order_list = None
 
     # 获取chrome驱动
     def start_driver(self):
@@ -135,14 +133,9 @@ class TaoBao:
         # 获取全选框
         select_all = self.driver.find_element(By.ID, "J_SelectAll1")
         if select_all:
-            # 获取全选框的值（如果已选中，则返回true，否则返回None）
-            is_check_all = select_all.get_attribute('checked')
-            # print(is_check_all)
-            if not is_check_all:
-                print("当前未选状态，自动选择全部商品")
-                # 点击全选
-                select_all.click()
-            print("已经选中全部商品！！！")
+            # 点击全选
+            select_all.click()
+        print("已经选中全部商品！！！")
 
         # 记录提交状态
         submit_success = False
@@ -156,20 +149,17 @@ class TaoBao:
                 print(f"开始抢购, 尝试次数： {str(retry_count + 1)}")
             else:
                 # 睡眠一段时间,防止cpu一直工作
-                sleep(0.3)
+                sleep(0.1)
                 continue
             try:
-                # 获取购物车商品信息，后期推送消息
-                self.order_list = self.driver.find_element(By.XPATH, "/html").get_attribute("outerHTML")
-                # print(self.order_list)
                 # 等待结算按钮可以被点击
-                button = WebDriverWait(self.driver, 10, poll_frequency=0.1).until(
+                button = WebDriverWait(self.driver, 5, poll_frequency=0.1).until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, '#J_SmallSubmit')))
                 # 点击结算
                 button.click()
                 print("已经点击结算按钮...")
                 # 等待跳转到提交订单按钮可以被点击
-                submit = WebDriverWait(self.driver, 10, poll_frequency=0.1).until(
+                submit = WebDriverWait(self.driver, 5, poll_frequency=0.1).until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, '#submitOrderPC_1 > div > a.go-btn')))
                 # 点击提交订单
                 submit.click()
@@ -193,20 +183,20 @@ class TaoBao:
     def pay(self):
         try:
             # 等待密码框加载完毕
-            element = WebDriverWait(self.driver, 10).until(
+            element = WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'sixDigitPassword')))
             # 输入密码
             element.send_keys(self.password)
             print("密码输入完成")
             # 等待确认付款按钮加载完成,并付款
-            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#J_authSubmit'))).click()
+            WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#J_authSubmit'))).click()
             print("付款成功")
-            notify_user(html=str(self.order_list))
+            notify_user()
         except Exception as e:
             print(e)
-            notify_user(text="商品抢购失败", html=str(self.order_list))
+            notify_user(text="商品抢购失败")
         finally:
-            sleep(60)
+            sleep(30)
             self.driver.quit()
 
     def get_cookie(self):

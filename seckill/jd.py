@@ -46,8 +46,6 @@ class JDong:
         self.password = password
         # chrome驱动
         self.driver = None
-        # 订单详情
-        self.order_list = None
 
     # 获取chrome驱动
     def start_driver(self):
@@ -132,9 +130,11 @@ class JDong:
         self.keep_wait()
 
         # 获取全选框
-        select_all = self.driver.find_element(By.XPATH, '//div[@class="column t-checkbox"]//input[@class="jdcheckbox"]')
+        select_all = self.driver.find_element(By.XPATH,
+                                              '//div[@class="column t-checkbox"]//input[@class="jdcheckbox"]')
         if select_all:
             # 获取全选框的值（如果已选中，则返回true，否则返回None）
+            # 因为京东会记录上一次选中的情况，所以需要判断是否选中，如果未选中，才去自动选中。
             is_check_all = select_all.get_attribute('checked')
             # print(is_check_all)
             if not is_check_all:
@@ -152,29 +152,37 @@ class JDong:
             # 获取当前时间
             now = datetime.now()
             if now >= self.seckill_time:
+                # 正式抢购时，再次检查是否选中了商品
+                # 因为京东秒杀时间之前，是不能够选择商品的，所以在正式抢购时，需要再次判断是否选中
+                if select_all:
+                    is_check_all = select_all.get_attribute('checked')
+                    # print(is_check_all)
+                    if not is_check_all:
+                        print("当前状态仍未选择，再次选择全部商品")
+                        # 点击全选
+                        select_all.click()
+                    else:
+                        print("已核实当前处于选中状态")
                 print(f"开始抢购, 尝试次数： {str(retry_count + 1)}")
             else:
                 # 睡眠一段时间,防止cpu一直工作
-                sleep(0.3)
+                sleep(0.1)
                 continue
             try:
-                # 获取购物车商品信息，后期推送消息
-                self.order_list = self.driver.find_element(By.XPATH, "/html").get_attribute("outerHTML")
-                # print(self.order_list)
                 # 等待结算按钮可以被点击
-                button = WebDriverWait(self.driver, 10, poll_frequency=0.1).until(
+                button = WebDriverWait(self.driver, 5, poll_frequency=0.1).until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, '.common-submit-btn')))
                 # 点击结算
                 button.click()
                 print("已经点击结算按钮...")
                 # 等待跳转到提交订单按钮可以被点击
-                submit = WebDriverWait(self.driver, 10, poll_frequency=0.1).until(
+                submit = WebDriverWait(self.driver, 5, poll_frequency=0.1).until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, '.checkout-submit')))
                 # 点击提交订单
                 submit.click()
                 print("已经点击提交订单按钮...")
                 # 等待跳转到立即支付按钮可以被点击
-                pay = WebDriverWait(self.driver, 10, poll_frequency=0.1).until(
+                pay = WebDriverWait(self.driver, 5, poll_frequency=0.1).until(
                     EC.element_to_be_clickable((By.XPATH, '//div[@class="pay-button-wrapper"]//div[@class="base-button pointer-g"]')))
                 # 点击立即支付
                 pay.click()
@@ -198,22 +206,22 @@ class JDong:
     def pay(self):
         try:
             # 等待弹窗内的密码框加载完毕
-            element = WebDriverWait(self.driver, 10).until(
+            element = WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.ID, 'shortPwdInput')))
             # 输入密码
             element.send_keys(self.password)
             print("密码输入完成")
             # 等待弹窗的立即支付按钮加载完成,并付款
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, '//div[@class="btn"]//div[@class="base-button pointer-g"]')))\
                 .click()
             print("付款成功")
-            notify_user(html=str(self.order_list))
+            notify_user()
         except Exception as e:
             print(e)
-            notify_user(text="商品抢购失败", html=str(self.order_list))
+            notify_user(text="商品抢购失败")
         finally:
-            sleep(60)
+            sleep(30)
             self.driver.quit()
 
     def get_cookie(self):
