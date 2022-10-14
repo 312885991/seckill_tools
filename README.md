@@ -14,7 +14,7 @@
 ![](img/tools.png)
 
 ## 工具依赖
-#### 需要安装chrome浏览器，并且根据浏览器的版本找到对应的 [chromedriver]() 下载，解压到python安装的根目录下即可。
+#### 需要安装chrome浏览器，并且根据浏览器的版本找到对应的 [chromedriver](http://chromedriver.storage.googleapis.com/index.html) 下载，解压到python安装的根目录下即可。
 
 ![](img/chrome.png)
 
